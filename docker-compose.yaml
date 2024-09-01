@@ -1,0 +1,38 @@
+services:
+
+  db:
+    image: mariadb
+    container_name: kodboxdb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - "./db:/var/lib/mysql"
+    environment:
+      - "TZ=Europe/Madrid"
+      - "MYSQL_ROOT_PASSWORD=p4ssw0rd"
+      - "MYSQL_DATABASE=kodbox"
+      - "MYSQL_USER=kodbox"
+      - "MYSQL_PASSWORD=p4ssw0rd"
+    restart: unless-stopped
+      
+  app:
+    image: kodcloud/kodbox
+    container_name: kodbox
+    ports:
+      - 8080:80
+    links:
+      - db
+      - redis
+    volumes:
+      - "./data:/var/www/html"
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+
+  redis:
+    image: redis:alpine
+    environment:
+      - "TZ=Europe/Madrid"
+    restart: unless-stopped
+
+    
